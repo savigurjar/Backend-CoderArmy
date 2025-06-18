@@ -5,6 +5,6 @@ setTimeout(() => {
 
 // v8-engine -> libuv -> os
 
-fs.readFile("./data.json", (err, res) => {
+fs.readFile("./Day3/data.json", "utf-8", (err, res) => {
   console.log(res);
 });
