@@ -8,7 +8,8 @@ const app = express();
 // });
 
 // Specific route for "/about"
-app.use("/about", (req, res) => {
+app.use("/about/:id", (req, res) => {
+    console.log(req.params)
     res.send({ "band": "BTS" });
 });
 app.use("/contact", (req, res) => {
