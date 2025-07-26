@@ -9,6 +9,17 @@ app.use(express.json());
 
 app.post("/register", async (req, res) => {
   try {
+    // validate kya uske under firstname h ya nhi , agr nhi to aage nhi jane dega, kyu ki faltu me db
+    // api level pr data validate- user exprience better ho jayega
+    const mandatoryField = ["firstName", "emailId", "age"];
+    const IsAllowed = mandatoryField.every((k) =>
+      Object.keys(req.body).includes(k)
+    );
+
+    if (!IsAllowed) {
+      throw new Error("Fields Missing");
+    }
+
     await User.create(req.body);
     res.send("User Registered successfully");
   } catch (err) {
@@ -49,13 +60,12 @@ app.delete("/user/:id", async (req, res) => {
 app.patch("/user", async (req, res) => {
   try {
     const { _id, ...update } = req.body;
-    await User.findByIdAndUpdate(_id, update);
+    await User.findByIdAndUpdate(_id, update, { runValidators: true });
     res.send("Updated Successfully");
   } catch (err) {
     res.status(500).send("Error: " + err.message);
   }
 });
-
 
 main()
   .then(async () => {
