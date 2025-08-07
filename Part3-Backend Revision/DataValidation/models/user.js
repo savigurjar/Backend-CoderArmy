@@ -33,6 +33,10 @@ const userSchema = new Schema(
       lowercase: true,
       immutable: true,
     },
+    password: {
+      type: String,
+      required: true,
+    },
     photo: {
       type: String,
       default: "This is default photo",

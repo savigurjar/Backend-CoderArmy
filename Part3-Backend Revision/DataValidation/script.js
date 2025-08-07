@@ -2,33 +2,82 @@ const express = require("express");
 const app = express();
 const main = require("./data");
 const User = require("./models/user");
+const validuser = require("./utils/validuser");
+const validator = require("validator");
+const bcrypt = require("bcrypt");
+const cookie = require("cookie-parser");
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/register", async (req, res) => {
   try {
+    // validate user
+    await validuser(req.body);
+
+    req.body.password = await bcrypt.hash(req.body.password, 10);
+
     await User.create(req.body);
     res.status(201).send("client added successfully");
   } catch (err) {
     res.status(401).send("error " + err);
   }
 });
+app.post("/login", async (req, res) => {
+  try {
+    // validate karna
+
+    const people = await User.findOne({emailId:req.body.emailId});
+
+    if (!(req.body.emailId === people.emailId))
+      throw new Error("Invalid credentials");
+
+    const IsAllowed = await bcrypt.compare(req.body.password, people.password);
+    if (!IsAllowed) {
+      throw new Error("Invalid credentials");
+    }
+    const token = jwt.sign(
+      { id: people._id, emailId: people.emailId },
+      "savi@1!hsd",{expiresIn:60}
+    );
+    res.cookie("token", token);
+    res.send("login successfully");
+  } catch (err) {
+    res.send("Error " + err.message);
+  }
+});
 app.get("/info", async (req, res) => {
   try {
+    const payload = jwt.verify(req.cookies.token, "savi@1!hsd");
+    console.log(payload);
     const result = await User.find({});
     res.status(200).send(result);
   } catch (err) {
     res.status(401).send("error " + err);
   }
 });
-app.get("/info/:id", async (req, res) => {
+app.get("/user", async (req, res) => {
   try {
-    const id = await User.findById(req.params.id);
-    res.status(200).send(id);
+    const payload = jwt.verify(req.cookies.token, "savi@1!hsd");
+    const result = await User.findById(payload._id);
+    if (!result) {
+      return res.status(404).send("User not found");
+    }
+    res.status(200).send(result);
   } catch (err) {
     res.status(401).send("error " + err);
   }
 });
+// app.get("/info/:id", async (req, res) => {
+//   try {
+//     const id = await User.findById(req.params.id);
+//     res.status(200).send(id);
+//   } catch (err) {
+//     res.status(401).send("error " + err);
+//   }
+// });
 app.delete("/info/:id", async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);
