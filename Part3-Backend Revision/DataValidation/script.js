@@ -8,6 +8,7 @@ const bcrypt = require("bcrypt");
 const cookie = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const userAuth = require("./middleware/userauth")
 
 app.use(express.json());
 app.use(cookieParser());
@@ -48,24 +49,24 @@ app.post("/login", async (req, res) => {
     res.send("Error " + err.message);
   }
 });
-app.get("/info", async (req, res) => {
+app.get("/info", userAuth,async (req, res) => {
   try {
-    const payload = jwt.verify(req.cookies.token, "savi@1!hsd");
-    console.log(payload);
+    // const payload = jwt.verify(req.cookies.token, "savi@1!hsd");
+    // console.log(payload);
     const result = await User.find({});
     res.status(200).send(result);
   } catch (err) {
     res.status(401).send("error " + err);
   }
 });
-app.get("/user", async (req, res) => {
+app.get("/user",userAuth, async (req, res) => {
   try {
-    const payload = jwt.verify(req.cookies.token, "savi@1!hsd");
-    const result = await User.findById(payload._id);
-    if (!result) {
-      return res.status(404).send("User not found");
-    }
-    res.status(200).send(result);
+    // const payload = jwt.verify(req.cookie.token, "savi@1!hsd");
+    // const result = await User.findById(payload._id);
+    // if (!result) {
+    //   return res.status(404).send("User not found");
+    // }
+    res.status(200).send(req.result);
   } catch (err) {
     res.status(401).send("error " + err);
   }
@@ -78,7 +79,7 @@ app.get("/user", async (req, res) => {
 //     res.status(401).send("error " + err);
 //   }
 // });
-app.delete("/info/:id", async (req, res) => {
+app.delete("/info/:id",userAuth, async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);
     res.status(200).send("delete sucessfully");
@@ -86,7 +87,7 @@ app.delete("/info/:id", async (req, res) => {
     res.status(401).send("error " + err);
   }
 });
-app.put("/info", async (req, res) => {
+app.put("/info",userAuth, async (req, res) => {
   try {
     const { _id, ...update } = req.body;
     await User.findByIdAndUpdate(_id, update, { runValidators: true });
