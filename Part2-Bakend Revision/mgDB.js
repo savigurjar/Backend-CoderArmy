@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 async function main() {
   await mongoose.connect(
-    "mongodb+srv://savigurjar:Hunter12@cluster0.rapodec.mongodb.net/OnePiece"
+    process.env.DBCONNECT_KEY
   );
 
   const userSchema = new Schema({

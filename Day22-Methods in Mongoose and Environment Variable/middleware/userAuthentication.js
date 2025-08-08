@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("../Models/users")
-
+const User = require("../Models/users");
 
 const userAuth = async (req, res, next) => {
   try {
@@ -9,7 +8,7 @@ const userAuth = async (req, res, next) => {
     if (!token) {
       throw new Error("Invalid Token");
     }
-    const payload = jwt.verify(token, "SAVIV1230");
+    const payload = jwt.verify(token, process.env.SECRET_KEY);
 
     const { _id } = payload;
     if (!_id) {
@@ -20,7 +19,7 @@ const userAuth = async (req, res, next) => {
       return res.status(404).send("User not found");
     }
     req.result = result;
-    console.log("user authentication")
+    console.log("user authentication");
     next();
   } catch (err) {
     res.status(500).send("Error: " + err.message);

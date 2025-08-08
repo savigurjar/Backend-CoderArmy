@@ -5,8 +5,8 @@ const { MongoClient } = require("mongodb");
 // Connection URL
 // username password cluster 
 // @ === %40(hexadecimal: 0x40) is used to encode special character 
-const url =
-  "mongodb+srv://savigurjar:Hunter12@cluster0.rapodec.mongodb.net/";
+const url = process.env.DB_CONNECT_KEY;
+ 
 const client = new MongoClient(url);
 
 // Database Name

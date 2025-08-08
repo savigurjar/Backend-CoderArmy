@@ -5,7 +5,7 @@
 // async function main() {
 //   // connect to cluster
 //   await mongoose.connect(
-//     "mongodb+srv://savigurjar:Hunter12@cluster0.rapodec.mongodb.net/BookStore"
+//     process.env.DB_CONNECT_KEY
 //   );
 
 //   // code likhna start kr do

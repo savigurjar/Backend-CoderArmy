@@ -48,7 +48,7 @@ This is a basic Node.js REST API for managing users, similar to a small part of 
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/yourusername/instagram-user-api.git
+git clone https://github.com/yourusername/.git
 
 # 2. Install dependencies
 
