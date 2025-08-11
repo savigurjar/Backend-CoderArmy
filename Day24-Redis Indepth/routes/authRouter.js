@@ -4,6 +4,8 @@ const User = require("../Models/users");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const validateUser = require("../utils/validate");
+const redisClient = require("../config/redis");
+const userAuth = require("../middleware/userAuthentication")
 
 authRouter.post("/register", async (req, res) => {
   try {
@@ -42,14 +44,28 @@ authRouter.post("/login", async (req, res) => {
   }
 });
 
-authRouter.post("/logout", async (req, res) => {
+authRouter.post("/logout", userAuth, async (req, res) => {
   try {
-    // res.cookie("token", "hsdjkfkd");
-    res.cookie("token", null, { expires: new Date(Date.now()) });
+    const token = req.cookies.token;
+    if (!token) {
+      return res.status(400).send("No token found");
+    }
+
+    await redisClient.set(`token:${token}`, "Blocked");
+
+    const payload = jwt.decode(token);
+    if (!payload || !payload.exp) {
+      return res.status(400).send("Invalid token");
+    }
+
+    await redisClient.expireAt(`token:${token}`, payload.exp);
+
+    
     res.status(200).send("logout successfully");
   } catch (err) {
-    res.send("Error " + err.message);
+    res.status(500).send("Error " + err.message);
   }
 });
+
 
 module.exports = authRouter;

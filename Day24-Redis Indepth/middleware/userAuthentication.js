@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../Models/users");
+const redisClient = require("../config/redis");
 
 const userAuth = async (req, res, next) => {
   try {
@@ -19,7 +20,10 @@ const userAuth = async (req, res, next) => {
       return res.status(404).send("User not found");
     }
     req.result = result;
-    console.log("user authentication");
+    // console.log("user authentication");
+
+    const isBlocked = await redisClient.exists(`token:${token}`);
+    if (isBlocked) throw new Error("Invalid token");
     next();
   } catch (err) {
     res.status(500).send("Error: " + err.message);

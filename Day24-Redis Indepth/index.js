@@ -1,35 +1,49 @@
-// CRUD : create read update delete
+// Load environment variables first
+require("dotenv").config();
 
 const express = require("express");
-const app = express();
-const main = require("./database");
-const User = require("./Models/users");
-const validateUser = require("./utils/validate");
-const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
-const jwt = require("jsonwebtoken");
-const userAuth = require("./middleware/userAuthentication");
-require("dotenv").config();
+const redisClient = require("./config/redis");
+const main = require("./database");
 const authRouter = require("./routes/authRouter");
-const userRouter = require("./routes/userRouter")
+const userRouter = require("./routes/userRouter");
 
+const app = express();
+
+// Middleware
 app.use(express.json());
 app.use(cookieParser());
 
+// Routes
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
 
-main()
-  .then(async () => {
-    console.log("connected to DB");
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error("Error:", err.stack);
+  res.status(500).json({ message: "Something went wrong" });
+});
 
-    // Start server
+// Initialize connections and start server
+const initializeConnection = async () => {
+  try {
+    if (!redisClient.isOpen) {
+      await redisClient.connect();
+    }
+
+    await main();
+    console.log("✅ Connected to Redis and Database");
+
     app.listen(process.env.PORT, () => {
-      console.log("Listening at port 4000");
+      console.log(`🚀 Server is running at port ${process.env.PORT}`);
     });
+  } catch (err) {
+    console.error("❌ Connection Error:", err);
+    process.exit(1);
+  }
+};
 
-    // Sample query: find user
-    const result = await User.find({ name: "savi" });
-    // console.log(result);
-  })
-  .catch((err) => console.log(err));
+
+
+
+initializeConnection();
