@@ -12,8 +12,8 @@ const rateLimiter = async (req, res, next) => {
     }
 
     // Step 4: If more than 60 requests in an hour, block the user
-    if (count > 60) throw new Error("User limit exceeded");
-
+    if (count > 10) throw new Error("User limit exceeded");
+    console.log(count);
     next(); // Step 5: Continue to next middleware or route
   } catch (err) {
     res.status(404).send("error " + err);
