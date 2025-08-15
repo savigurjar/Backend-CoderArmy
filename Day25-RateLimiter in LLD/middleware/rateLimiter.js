@@ -4,6 +4,15 @@ const rateLimiter = async (req, res, next) => {
   try {
     const ip = req.ip; // Step 1: Identify the user by IP
 
+    // kya ye ip exist krta h\
+    // set method redisClient.set(ip,`1:${Date.now()/1000`})
+    // await redisClient.expire(3600)
+
+
+    // exist krta hoga:
+    // get
+
+
     const count = await redisClient.incr(ip); // Step 2: Increase request count
 
     // Step 3: If first request, set expiry time of 1 hour (3600 seconds)
