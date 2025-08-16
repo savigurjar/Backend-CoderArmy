@@ -51,9 +51,13 @@ const maxRequest = 10;
    - Adds the current request to Redis with a timestamp:
 
      ```js
-     redisClient.zAdd(key, [
-       { score: currentTime, value: `${currentTime}:${Math.random()}` },
-     ]);
+    const randomId = crypto.randomBytes(16).toString("hex");
+
+    - add current request to sorted set with timestamp as score
+    
+    await redisClient.zAdd(key, [
+      { score: currentTime, value: `${currentTime}:${randomId}` },
+    ]);
      ```
 
    - `score` is the timestamp in seconds.

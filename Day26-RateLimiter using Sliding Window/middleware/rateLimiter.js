@@ -1,4 +1,5 @@
 const redisClient = require("../config/redis");
+const crypto = require("crypto");
 
 // total time : 60min
 const windowSize = 3600;
@@ -19,14 +20,18 @@ const rateLimiter = async (req, res, next) => {
     if (numOfRequest >= maxRequest)
       throw new Error("Number of requests exceeded");
 
+    // generate a secure random value
+    const randomId = crypto.randomBytes(16).toString("hex");
+
+    // add current request to sorted set with timestamp as score
     await redisClient.zAdd(key, [
-      { score: currentTime, value: `${currentTime}:${Math.random()}` },
-    ]); //request added with timestamp
+      { score: currentTime, value: `${currentTime}:${randomId}` },
+    ]);
 
     // key ttl increase krna
     await redisClient.expire(key, windowSize);
-    console.log(numOfRequest)
- 
+    console.log(numOfRequest);
+
     next(); // Step 5: Continue to next middleware or route
   } catch (err) {
     res.status(404).send("error " + err);
