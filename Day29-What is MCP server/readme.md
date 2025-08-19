@@ -1,0 +1,2 @@
+MCP (Model Context Protocol) Server is a backend server that allows different clients (like AI models or apps) to connect and exchange structured data in a standard way.
+Think of it like a translator between your backend logic and AI tools — it makes communication smooth and consistent.
