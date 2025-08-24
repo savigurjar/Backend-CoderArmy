@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>CHAT APP</h1>
+    <input type="text" placeholder="Enter room number: " id="roomNumber" />
+    <button onclick="joinRoom()">Join</button>
+    <div
+      id="messageDisplay"
+      style="
+        height: 50vh;
+        width: 50vw;
+        background-color: rgb(139, 118, 91);
+        margin-top: 20px;
+        margin-bottom: 20px;
+      "
+    ></div>
+    <input
+      type="text"
+      placeholder="type your msg here "
+      id="message"
+      style="height: 10vh; width: 50vw; font-size: larger"
+    />
+    <button onclick="sendMessage()">Send</button>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      // console.log(socket)
+      /*socket.on("connect", () => {
+        console.log(socket.id);
+      });*/
+
+      const messageBox = document.getElementById("messageDisplay");
+      const messageInput = document.getElementById("message");
+      const roomNumber = document.getElementById("roomNumber");
+      let roomId = null;
+      /* function sendMessage() {
+        const msg = messageInput.value;
+        socket.emit("message", msg); //msg bhej
+        messageInput.value = " ";
+        const element = document.createElement("div");
+        element.textContent = msg; //jo msg bhej rhe h usko right side
+        element.style.textAlign = "right";
+        messageBox.appendChild(element);
+      }*/
+
+      function sendMessage() {
+        const msg = messageInput.value;
+        socket.emit("message", { room: roomId, msg: msg }); //msg bhej
+        messageInput.value = " ";
+        const element = document.createElement("div");
+        element.textContent = msg; //jo msg bhej rhe h usko right side
+        element.style.textAlign = "right";
+        messageBox.appendChild(element);
+      }
+
+      function joinRoom() {
+        const room = roomNumber.value;
+        roomId = room;
+        socket.emit("join-room", room); //object ke form me bhi bhej skte h {room:room}
+      }
+
+      //recieve - listen
+      socket.on("new-message", (data) => {
+        const element = document.createElement("div");
+        element.textContent = data;
+        element.style.textAlign = "left";
+        messageBox.appendChild(element);
+      });
+    </script>
+  </body>
+</html>
